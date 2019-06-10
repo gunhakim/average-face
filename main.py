@@ -1,14 +1,26 @@
 import numpy as np
-import cv2, dlib, sys, imutils, math
-import get_face
-import glob
+import cv2, sys, imutils, get_face, glob
 
 try:
     dir = sys.argv[1]
     r_name = sys.argv[2]
 except:
-    dir = 'images'
-    r_name = 'result.png'
+    info = '''
+    Average face
+    made by kimgunha
+    
+    How to run:
+    python main.py [images_dir] [result.png] [type]
+    
+    type: None, full
+'''
+    print(info)
+    exit()
+
+try:
+    out_type = sys.argv[3]
+except:
+    out_type = ''
 
 image_files = glob.glob(dir+'/*')
 n = len(image_files)
@@ -46,9 +58,22 @@ for img, gf in zip(images, gfs):
     result_images.append(img)
 
 
+
 result = cv2.addWeighted(result_images[0], 1/n, result_images[1], 1/n, 0)
 for img in result_images[2:]:
     result = cv2.addWeighted(result, 1, img, 1/n, 0)
 
-cv2.imwrite('result/'+r_name, result)
+if out_type == '':
+    cv2.imwrite('result/'+r_name, result)
+    exit()
+
+elif out_type == 'full':
+    result_f = cv2.hconcat([result_images[0], result_images[1]])
+    for img in result_images[2:]:
+        result_f = cv2.hconcat([result_f, img])
+
+    result = cv2.hconcat([result_f, result])
+
+    cv2.imwrite('result/'+r_name, result)
+    exit()
 

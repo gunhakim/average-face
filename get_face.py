@@ -1,5 +1,5 @@
 import numpy as np
-import cv2, dlib, sys, imutils, math
+import cv2, dlib, imutils, math
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('data/face_landmark.dat')
@@ -11,13 +11,12 @@ predictor = dlib.shape_predictor('data/face_landmark.dat')
 # 42~47: 오른눈
 # 48~ : 입
 '''
-
-
 class get_face():
     def __init__(self, img):
         # self.img = cv2.imread(img)
         self.img = img
         self.face = detector(self.img)[0]
+
         self.dlib_shape = predictor(self.img, self.face)
         self.shape_2d = np.array([[p.x, p.y] for p in self.dlib_shape.parts()])
 
@@ -57,12 +56,26 @@ def get_info(img):
 
 
 if __name__ == '__main__':
-    img = cv2.imread('images/face.jpg')
-    img = cv2.resize(img, (int(img.shape[1] * 0.3), int(img.shape[0] * 0.3)))
+    img = cv2.imread('images/sample.jpg')
+    img = cv2.resize(img, dsize=None, fx=0.5, fy=0.5)
     gf = get_face(img)
+
+    cv2.imshow('img', img)
+    cv2.waitKey(0)
+
+    for s in gf.shape_2d:
+        img = cv2.circle(img, center=tuple(s), radius=2, color=(255, 255, 255), thickness=2, lineType=cv2.LINE_AA)
+
+    cv2.imshow('img', img)
+    cv2.waitKey(0)
 
     img = imutils.rotate(img, gf.degree, center=(gf.center_x, gf.center_y))
 
     cv2.imshow('img', img)
     cv2.waitKey(0)
-    cv2.destroyAllWindows()
+
+    center_x, center_y = get_info(img)
+    img = img[center_y - 150:center_y + 150, center_x - 150:center_x + 150]
+
+    cv2.imshow('img', img)
+    cv2.waitKey(0)
